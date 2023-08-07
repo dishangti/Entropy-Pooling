@@ -10,3 +10,4 @@ Portfolio management with dynamic entropy pooling strategy.
 This repo relies on the following third-party projects:
 - [fortitudo-tech/fortitudo.tech](https://github.com/fortitudo-tech/fortitudo.tech)
 - [ryanyuan42/EntropyPooling](https://github.com/ryanyuan42/EntropyPooling)
+- [Dynamic Portfolio Management with Views at Multiple Horizons by Attilio Meucci](https://www.mathworks.com/matlabcentral/fileexchange/51224-dynamic-portfolio-management-with-views-at-multiple-horizons?s_tid=prof_contriblnk)
