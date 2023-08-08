@@ -14,19 +14,19 @@ mu_LT = theta\mu;
 %load the simulated path for the 10y Government rate (this is equal to its shadow rate)
 load 'path_daily.mat'
 x0 = x0(1);
-A300_path = A300_path(501:500+127);
+A300_path = A300_path(501:500+76);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %set the trading
 tau = 1/252;                        % trading frequency (daily)
-T_Hor = 0.5;%years                  % effective future portfolio horizon   
+T_Hor = 0.3;%years                  % effective future portfolio horizon   
 tau_ = length([0:tau:T_Hor]);       % effective number of future tradings at any point in time
 n_ = 1;                             % number of risk drivers 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %set the view at time 0
-t_view0 = 5;%years                  % time of the view at time 0
-mu_x10y = x0 + 5;              % view on the 10y rate at time 0
+t_view0 = 0.3;%years                  % time of the view at time 0
+mu_x10y = x0-2;              % view on the 10y rate at time 0
 t = [0:tau:T_Hor t_view0]';         % monitoring times
 t_ = length(t);                     % number of monitoring times    
 
@@ -48,7 +48,7 @@ c2 = Prior0.cov(n_+1:2*n_,n_+1:2*n_);
 % Prior and Posterior Optimal exposure with Market Impcat of transaction.
 % SOLVING THE BELLMAN EQUATION
 
-[b_MI_Bellman_prior b_MI_Bellman_post] = BellmanEq_CS1(eta, gamma, lambda, tau, theta, mu, sig2, c2, b_legacy, A300_path, t_view0, mu_x10y);
+[b_MI_Bellman_prior, b_MI_Bellman_post] = BellmanEq_CS1(eta, gamma, lambda, tau, theta, mu, sig2, c2, b_legacy, A300_path, t_view0, mu_x10y);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -93,9 +93,10 @@ for i = 1:tau_-1
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Market impact: calculus of variation
-    l_t = - exp(-lambda*[0:1:tau_-2]').*diff(Mean_prior(1:end-1));
+    ER = diff(Mean_prior(1:end-1));
+    l_t = - exp(-lambda*[0:1:length(ER)-1]').*diff(Mean_prior(1:end-1));
     l_t(1) = l_t(1) - eta*c2*b_legacy_prior;
-    q_t = QuadraticMat_Vc(lambda,gamma,eta,Prior.cov,c2,tau_-1,n_);
+    q_t = QuadraticMat_Vc(lambda,gamma,eta,Prior.cov,c2,length(ER),n_);
     b_MI_Vc_prior_tmp = (2*q_t)\l_t;
     b_MI_Vc_prior(i,1:n_) = b_MI_Vc_prior_tmp(1:n_);
     b_legacy_prior = b_MI_Vc_prior(i,1:n_);
@@ -111,7 +112,7 @@ for i = 1:tau_-1
     N_Meanviews = 1;%Number of views on expectations
     v_tmp = zeros(N_Meanviews,n_,t_);
     v_tmp(1,1,end) = 1;
-    mu_view(1,1) = mu_x10y; 
+    mu_view = mu_x10y; 
     v_mu = v_tmp(:,:);
     views = struct('N_Meanviews', N_Meanviews,'N_Covviews',[],'dimension',N(:),'monitoring_time',T(:),'v_mu',v_mu,'v_sig',NaN,'mu_view',mu_view,'sig2_view',[]);                    
     
@@ -128,9 +129,10 @@ for i = 1:tau_-1
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Market impact: calculus of variation
-    l_t = - exp(-lambda*[0:1:tau_-2]').*diff(Mean_post(1:end-1));
+    ER = diff(Mean_post(1:end-1));
+    l_t = - exp(-lambda*[0:1:length(ER)-1]').*ER;
     l_t(1) = l_t(1) - eta*c2*b_legacy_post;
-    q_t = QuadraticMat_Vc(lambda,gamma,eta,Posterior.cov,c2,tau_-1,n_);
+    q_t = QuadraticMat_Vc(lambda,gamma,eta,Posterior.cov,c2,length(ER),n_);
     b_MI_Vc_post_tmp = (2*q_t)\l_t;
     b_MI_Vc_post(i,1:n_) = b_MI_Vc_post_tmp(1:n_);
     b_legacy_post = b_MI_Vc_post(i,1:n_);
