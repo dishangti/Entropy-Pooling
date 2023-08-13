@@ -43,14 +43,15 @@ for time = start_time:adjust_period:end_time
     end
     x0 = A300_allPath(time);
     A300_path = A300_allPath(time:time+adjust_period - 1);
-    maxRSI = max(RSI_1(time - 10:time - 1));
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %set the view at time 0
-    t_view0 = adjust_period / 252;%years           % time of the view at time 0
+    t_view0 = 40 / 252;%years           % time of the view at time 0
+    maxRSI = max(RSI_1(time - 10:time - 1));
+    minRSI = min(RSI_1(time - 10:time - 1));
     if maxRSI >= 70
-        mu_x10y = x0 * (1 - 0.15);
-    elseif maxRSI <= 30
-        mu_x10y = x0 * (1 + 0.12);
+        mu_x10y = x0 * (1 - 0.08);
+    elseif minRSI <= 30
+        mu_x10y = x0 * (1 + 0.1);
     else
         mu_x10y = x0;
     end
@@ -59,13 +60,13 @@ for time = start_time:adjust_period:end_time
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %set the parameters for optimization
-    gamma = 10^-2;                      % risk aversion parameter    
-    eta = 2;                            % weight of the market impact of transaction
+    gamma = 10^-3;                      % risk aversion parameter    
+    eta = 0.8;                            % weight of the market impact of transaction
     lambda = log(2)/20;                 % discount (half life 20*tau)
     if exist('Posterior', 'var')
         b_legacy = b_MI_Bellman_post(end);                       % legacy portfolio
     else
-        b_legacy = 0
+        b_legacy = 0;
     end
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

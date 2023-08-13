@@ -45,15 +45,17 @@ for time = start_time:adjust_period:end_time
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   
     %set the view at time 0
-    maxRSI = max(RSI(time - 10:time - 1));  
-    t_view0 = adjust_period / 252;%years           % time of the view at time 0
+    maxRSI = max(RSI(time - 10:time - 1));
+    minRSI = min(RSI(time - 10:time - 1));
+    t_view0 = 40 / 252;%years           % time of the view at time 0
     if maxRSI >= 70
-        mu_x10y = x0 * (1 - 0.005);
-    elseif maxRSI <= 30
-        mu_x10y = x0 * (1 + 0.005);
+        mu_x10y = x0 * (1 - 0.002);
+    elseif minRSI <= 30
+        mu_x10y = x0 * (1 + 0.002);
     else
         mu_x10y = x0;
     end
+    %mu_x10y = x0;
     t = [0:tau:T_Hor t_view0]';         % monitoring times
     t_ = length(t);                     % number of monitoring times
     
@@ -173,12 +175,15 @@ t_series = [1:length(b_series)];
 length(t_series)
 yyaxis left
 ylabel('Exposure') 
-line(t_series, b_series)
+plot(t_series, b_series, 'b')
+hold on;
 %origin
 load('CaseStudy_rate.mat', 'b_MI_Bellman_post');
-line(t_series, b_MI_Bellman_post(start_time:end_time + adjust_period - 1))
+plot(t_series, b_MI_Bellman_post(start_time:end_time + adjust_period - 1),'r')
+hold on;
 yyaxis right
 ylabel('10y rate') 
-line(t_series, X_allPath(start_time:end_time + adjust_period - 1))
+plot(t_series, X_allPath(start_time:end_time + adjust_period - 1))
+hold on;
 set(gca, 'XMinorGrid','on');
 grid on
