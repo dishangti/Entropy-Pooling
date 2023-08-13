@@ -15,13 +15,11 @@ mu_LT = theta\mu;
 load 'path_daily.mat'
 
 start_time = 501;
-adjust_period = 15; % 90 periods
-end_time = 501 + adjust_period*20;    % 1800 days
+adjust_period = 10; % 90 periods
+end_time = 501 + adjust_period*50;    % 1800 days
 
-RSI_1 = rsindex(A300_path,14);
+RSI_1 = rsindex(A300_path,10);
 A300_allPath = A300_path;
-
-money_amount = 1000000.0;
 
 b_series = [];
 
@@ -45,34 +43,24 @@ for time = start_time:adjust_period:end_time
     end
     x0 = A300_allPath(time);
     A300_path = A300_allPath(time:time+adjust_period - 1);
-    meanRSI = max(RSI_1(time - 12:time - 1));
+    maxRSI = max(RSI_1(time - 10:time - 1));
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %set the view at time 0
     t_view0 = adjust_period / 252;%years           % time of the view at time 0
-    if meanRSI >= 90
-        mu_x10y = x0 * (1 - 0.22);
-    elseif meanRSI >= 80
-        mu_x10y = x0 * (1 - 0.17);
-    elseif meanRSI >= 70
-        mu_x10y = x0 * (1 - 0.12);
-    elseif meanRSI <= 10
-        mu_x10y = x0 * (1 + 0.2);
-    elseif meanRSI <= 20
-        mu_x10y = x0 * (1 + 0.15);
-    elseif meanRSI <= 30
-        mu_x10y = x0 * (1 + 0.1);
+    if maxRSI >= 70
+        mu_x10y = x0 * (1 - 0.15);
+    elseif maxRSI <= 30
+        mu_x10y = x0 * (1 + 0.12);
     else
         mu_x10y = x0;
     end
-    x0
-    mu_x10y
     t = [0:tau:T_Hor t_view0]';         % monitoring times
     t_ = length(t);                     % number of monitoring times
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %set the parameters for optimization
     gamma = 10^-2;                      % risk aversion parameter    
-    eta = 2;                          % weight of the market impact of transaction
+    eta = 2;                            % weight of the market impact of transaction
     lambda = log(2)/20;                 % discount (half life 20*tau)
     if exist('Posterior', 'var')
         b_legacy = b_MI_Bellman_post(end);                       % legacy portfolio
