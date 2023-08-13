@@ -44,7 +44,7 @@ for time = start_time:adjust_period:end_time
         b_series = [b_series b_MI_Bellman_post'];
     end
     x0 = A300_allPath(time);
-    A300_path = A300_allPath(start_time:start_time+adjust_period - 1);
+    A300_path = A300_allPath(time:time+adjust_period - 1);
     meanRSI = max(RSI_1(time - 12:time - 1));
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %set the view at time 0
